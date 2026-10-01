@@ -1,0 +1,28 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# Raw provided sample captures (large binaries, regenerate by unzipping the
+# provided archives into Sample_data_to_run_code/ -- see Sample_data_to_run_code/README.md)
+Sample_data_to_run_code/*.zip
+Sample_data_to_run_code/single_room/
+Sample_data_to_run_code/single_scan_floor_only/
+Sample_data_to_run_code/single_scan_with_ceiling/
+
+# Generated (regenerable via benchmark/generate_synthetic_benchmark.py) bulky artifacts.
+# Ground truth + manifests + reports are small and ARE tracked (see benchmark/.gitignore notes).
+Sample_data_to_run_code/synthetic_benchmark/**/points/
+Sample_data_to_run_code/synthetic_benchmark/**/*.npz
+Sample_data_to_run_code/synthetic_benchmark/**/photos/*.png
+Sample_data_to_run_code/synthetic_benchmark/**/frames/*.png
+
+# Pipeline run outputs (regenerable)
+out/
+runs/
+*.out/
+
+# OS cruft
+.DS_Store
+Thumbs.db
