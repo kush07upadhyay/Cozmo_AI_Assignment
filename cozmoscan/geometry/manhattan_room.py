@@ -50,7 +50,10 @@ class ManhattanConfig:
     opening_min_width_m: float = 0.3
     corner_margin_m: float = 0.10
     door_sill_threshold_m: float = 0.15
-    ci_k: float = 2.0  # calibrated against synthetic benchmark repeatability, see docs/07
+    ci_k: float = 2.8  # calibrated via benchmark/calibrate_ci.py (max residual/raw_spread ratio
+    # across 30 synthetic ground-truth wall-length + ceiling-height samples = 2.723, rounded up
+    # for margin given the small n). See docs/07_benchmark_methodology.md and
+    # benchmark/ci_calibration.json for the full per-sample evidence.
     rng_seed: int = 7
     # Fix-loop (fix_loop/fix_declaration.md): a FIXED opening_bin_m grid cell combined with a
     # *mean coverage* threshold is a bad discriminator at realistic/sparse point density -- random

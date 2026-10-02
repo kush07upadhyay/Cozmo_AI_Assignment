@@ -43,7 +43,14 @@ class PhotoTierConfig:
     hough_min_line_length: int = 70
     hough_max_line_gap: int = 15
     vertical_angle_tol_deg: float = 10.0
-    ci_frac: float = 0.15  # photo tier: +-15% disclosed uncertainty (widest of the 3 tiers)
+    ci_frac: float = 0.15  # photo tier: +-15% disclosed uncertainty (widest of the 3 tiers).
+    # NOT calibrated against synthetic repeatability like the geometry tiers' ci_k -- there is no
+    # synthetic photo-realistic capture to repeat (the synthetic benchmark generator only
+    # produces point clouds). Only real-world evidence available: single_scan_with_ceiling's
+    # photo-tier ceiling height (2.97m) vs its own lidar-tier measurement on the SAME real room
+    # (3.06m) agree within ~3%. 15% is kept as a deliberately conservative (5x that observed
+    # error) placeholder rather than tightened on an n=1 cross-tier comparison. See
+    # docs/11_known_limitations.md.
 
 
 def _line_angle_deg(x1, y1, x2, y2) -> float:

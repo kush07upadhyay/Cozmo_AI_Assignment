@@ -1,0 +1,284 @@
+{
+  "current_ci_k": 2.0,
+  "n_samples": 30,
+  "n_infinite_ratio_excluded": 0,
+  "ratio_stats": {
+    "min": 0.0,
+    "median": 0.0,
+    "mean": 0.2589873005523055,
+    "max": 2.7232484097494463
+  },
+  "calibrated_ci_k": 2.7232484097494463,
+  "samples": [
+    {
+      "room": "repeat_room_a",
+      "quantity": "wall_0_length",
+      "true_value": 5.3,
+      "measured_value": 5.32,
+      "residual": 0.020000000000000462,
+      "raw_spread": 0.007564270035291469,
+      "ratio": 2.644009257560808
+    },
+    {
+      "room": "repeat_room_a",
+      "quantity": "wall_1_length",
+      "true_value": 5.3,
+      "measured_value": 5.32,
+      "residual": 0.020000000000000462,
+      "raw_spread": 0.00734417026680301,
+      "ratio": 2.7232484097494463
+    },
+    {
+      "room": "repeat_room_a",
+      "quantity": "wall_2_length",
+      "true_value": 4.2,
+      "measured_value": 4.2,
+      "residual": 0.0,
+      "raw_spread": 0.006566185290453996,
+      "ratio": 0.0
+    },
+    {
+      "room": "repeat_room_a",
+      "quantity": "wall_3_length",
+      "true_value": 4.2,
+      "measured_value": 4.2,
+      "residual": 0.0,
+      "raw_spread": 0.0060322060817612246,
+      "ratio": 0.0
+    },
+    {
+      "room": "repeat_room_a",
+      "quantity": "ceiling_height",
+      "true_value": 2.5,
+      "measured_value": 2.500000076368451,
+      "residual": 7.636845111846924e-08,
+      "raw_spread": 0.008285284810546845,
+      "ratio": 9.21735979688413e-06
+    },
+    {
+      "room": "repeat_room_b",
+      "quantity": "wall_0_length",
+      "true_value": 5.3,
+      "measured_value": 5.3,
+      "residual": 0.0,
+      "raw_spread": 0.00577012397791445,
+      "ratio": 0.0
+    },
+    {
+      "room": "repeat_room_b",
+      "quantity": "wall_1_length",
+      "true_value": 5.3,
+      "measured_value": 5.3,
+      "residual": 0.0,
+      "raw_spread": 0.006080563286799448,
+      "ratio": 0.0
+    },
+    {
+      "room": "repeat_room_b",
+      "quantity": "wall_2_length",
+      "true_value": 4.2,
+      "measured_value": 4.199999999999999,
+      "residual": 8.881784197001252e-16,
+      "raw_spread": 0.005820001502798901,
+      "ratio": 1.526079364881591e-13
+    },
+    {
+      "room": "repeat_room_b",
+      "quantity": "wall_3_length",
+      "true_value": 4.2,
+      "measured_value": 4.199999999999999,
+      "residual": 8.881784197001252e-16,
+      "raw_spread": 0.005892804034408428,
+      "ratio": 1.5072254473659728e-13
+    },
+    {
+      "room": "repeat_room_b",
+      "quantity": "ceiling_height",
+      "true_value": 2.5,
+      "measured_value": 2.479999950155616,
+      "residual": 0.020000049844384193,
+      "raw_spread": 0.00832537534477941,
+      "ratio": 2.4023000785094473
+    },
+    {
+      "room": "living_room",
+      "quantity": "wall_0_length",
+      "true_value": 4.5,
+      "measured_value": 4.5,
+      "residual": 0.0,
+      "raw_spread": 0.007957100056933314,
+      "ratio": 0.0
+    },
+    {
+      "room": "living_room",
+      "quantity": "wall_1_length",
+      "true_value": 4.5,
+      "measured_value": 4.5,
+      "residual": 0.0,
+      "raw_spread": 0.008896203925084733,
+      "ratio": 0.0
+    },
+    {
+      "room": "living_room",
+      "quantity": "wall_2_length",
+      "true_value": 5.5,
+      "measured_value": 5.5,
+      "residual": 0.0,
+      "raw_spread": 0.00963813811453466,
+      "ratio": 0.0
+    },
+    {
+      "room": "living_room",
+      "quantity": "wall_3_length",
+      "true_value": 5.5,
+      "measured_value": 5.5,
+      "residual": 0.0,
+      "raw_spread": 0.008869171193848077,
+      "ratio": 0.0
+    },
+    {
+      "room": "living_room",
+      "quantity": "ceiling_height",
+      "true_value": 2.5,
+      "measured_value": 2.500000048428774,
+      "residual": 4.842877388000488e-08,
+      "raw_spread": 0.008243739720175834,
+      "ratio": 5.874612193478123e-06
+    },
+    {
+      "room": "hallway",
+      "quantity": "wall_0_length",
+      "true_value": 3.0,
+      "measured_value": 3.0,
+      "residual": 0.0,
+      "raw_spread": 0.00628410836443876,
+      "ratio": 0.0
+    },
+    {
+      "room": "hallway",
+      "quantity": "wall_1_length",
+      "true_value": 3.0,
+      "measured_value": 3.0,
+      "residual": 0.0,
+      "raw_spread": 0.005956934228213327,
+      "ratio": 0.0
+    },
+    {
+      "room": "hallway",
+      "quantity": "wall_2_length",
+      "true_value": 1.5,
+      "measured_value": 1.5,
+      "residual": 0.0,
+      "raw_spread": 0.006101253127491703,
+      "ratio": 0.0
+    },
+    {
+      "room": "hallway",
+      "quantity": "wall_3_length",
+      "true_value": 1.5,
+      "measured_value": 1.5,
+      "residual": 0.0,
+      "raw_spread": 0.0061665385843998775,
+      "ratio": 0.0
+    },
+    {
+      "room": "hallway",
+      "quantity": "ceiling_height",
+      "true_value": 2.5,
+      "measured_value": 2.499999951571226,
+      "residual": 4.842877388000488e-08,
+      "raw_spread": 0.008979429569371405,
+      "ratio": 5.393301824560676e-06
+    },
+    {
+      "room": "bedroom",
+      "quantity": "wall_0_length",
+      "true_value": 3.4,
+      "measured_value": 3.3999999999999995,
+      "residual": 4.440892098500626e-16,
+      "raw_spread": 0.007218427815058663,
+      "ratio": 6.152159739322039e-14
+    },
+    {
+      "room": "bedroom",
+      "quantity": "wall_1_length",
+      "true_value": 3.4,
+      "measured_value": 3.3999999999999995,
+      "residual": 4.440892098500626e-16,
+      "raw_spread": 0.0069478278277539844,
+      "ratio": 6.391770505251895e-14
+    },
+    {
+      "room": "bedroom",
+      "quantity": "wall_2_length",
+      "true_value": 3.6,
+      "measured_value": 3.6,
+      "residual": 0.0,
+      "raw_spread": 0.006917644655411701,
+      "ratio": 0.0
+    },
+    {
+      "room": "bedroom",
+      "quantity": "wall_3_length",
+      "true_value": 3.6,
+      "measured_value": 3.6,
+      "residual": 0.0,
+      "raw_spread": 0.006913589251577385,
+      "ratio": 0.0
+    },
+    {
+      "room": "bedroom",
+      "quantity": "ceiling_height",
+      "true_value": 2.5,
+      "measured_value": 2.4999999217689037,
+      "residual": 7.82310962677002e-08,
+      "raw_spread": 0.008473593805632243,
+      "ratio": 9.232339673362844e-06
+    },
+    {
+      "room": "den",
+      "quantity": "wall_0_length",
+      "true_value": 3.8,
+      "measured_value": 3.8,
+      "residual": 0.0,
+      "raw_spread": 0.0071392471910463546,
+      "ratio": 0.0
+    },
+    {
+      "room": "den",
+      "quantity": "wall_1_length",
+      "true_value": 3.8,
+      "measured_value": 3.8,
+      "residual": 0.0,
+      "raw_spread": 0.007363581379089021,
+      "ratio": 0.0
+    },
+    {
+      "room": "den",
+      "quantity": "wall_2_length",
+      "true_value": 3.2,
+      "measured_value": 3.2,
+      "residual": 0.0,
+      "raw_spread": 0.007534926957499771,
+      "ratio": 0.0
+    },
+    {
+      "room": "den",
+      "quantity": "wall_3_length",
+      "true_value": 3.2,
+      "measured_value": 3.2,
+      "residual": 0.0,
+      "raw_spread": 0.006977787973658287,
+      "ratio": 0.0
+    },
+    {
+      "room": "den",
+      "quantity": "ceiling_height",
+      "true_value": 2.4,
+      "measured_value": 2.3999997284263372,
+      "residual": 2.715736626690557e-07,
+      "raw_spread": 0.008606867683878673,
+      "ratio": 3.155313554752725e-05
+    }
+  ]
+}
