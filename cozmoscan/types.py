@@ -138,3 +138,54 @@ class RoomModel:
     def to_global_xy(self, pts_local_xy: np.ndarray) -> np.ndarray:
         homog = np.concatenate([pts_local_xy, np.ones((len(pts_local_xy), 1))], axis=1)
         return (homog @ self.transform_to_global.T)[:, :2]
+
+
+@dataclass
+class DamageRegion:
+    """One detected area of damage on one surface, in that surface's own 2D (u=along-surface,
+    v=height) meters frame -- scale/placement is resolved by the caller (pipeline.py), the
+    detector itself only sees pixels (cozmoscan.damage.detector.DamageDetection).
+    """
+
+    damage_class: str  # "moisture_stain" | "structural_crack" | "mold"
+    surface_id: str
+    polygon_xy: np.ndarray  # (K,2) meters, surface-local
+    area_m2: float
+    confidence: float
+    extent_m: Optional[float] = None  # characteristic length, e.g. crack length (meters)
+    concealed_risk: Optional[str] = None
+    concealed_rule: Optional[str] = None
+
+    def as_dict(self) -> dict:
+        return {
+            "damage_class": self.damage_class,
+            "surface_id": self.surface_id,
+            "polygon_xy": np.round(self.polygon_xy, 4).tolist(),
+            "area_m2": round(self.area_m2, 4),
+            "confidence": round(self.confidence, 3),
+            "extent_m": round(self.extent_m, 4) if self.extent_m is not None else None,
+            "concealed_risk": self.concealed_risk,
+            "concealed_rule": self.concealed_rule,
+        }
+
+
+@dataclass
+class ScopeLineItem:
+    """One repair line item produced by the deterministic scope rules engine."""
+
+    surface_id: str
+    damage_class: str
+    description: str
+    quantity: float
+    unit: str
+    rule: str
+
+    def as_dict(self) -> dict:
+        return {
+            "surface_id": self.surface_id,
+            "damage_class": self.damage_class,
+            "description": self.description,
+            "quantity": round(self.quantity, 2),
+            "unit": self.unit,
+            "rule": self.rule,
+        }
