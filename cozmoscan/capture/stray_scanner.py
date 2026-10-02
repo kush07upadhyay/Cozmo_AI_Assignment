@@ -71,6 +71,21 @@ def load_poses(root: Path) -> list[Pose]:
     return poses
 
 
+def load_per_frame_intrinsics(root: Path) -> list[Intrinsics]:
+    """Per-frame RGB-resolution intrinsics as logged alongside each odometry pose."""
+    import cv2
+
+    rows = _read_odometry(root)
+    cap = cv2.VideoCapture(str(root / "rgb.mp4"))
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    cap.release()
+    return [
+        Intrinsics(fx=float(row["fx"]), fy=float(row["fy"]), cx=float(row["cx"]), cy=float(row["cy"]), width=width, height=height)
+        for row in rows
+    ]
+
+
 def load_rgb_intrinsics(root: Path) -> Intrinsics:
     """Intrinsics at RGB (video) resolution, from camera_matrix.csv + rgb.mp4 header."""
     import cv2

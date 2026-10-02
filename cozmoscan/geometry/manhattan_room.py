@@ -131,7 +131,22 @@ def _adaptive_wall_band(points: np.ndarray, floor_y: float, ceiling_y: float | N
     return band_mask
 
 
-def fit_room_box(cloud: WeightedPointCloud, tier: Tier, room_id: str, config: ManhattanConfig | None = None) -> RoomModel:
+def fit_room_box(
+    cloud: WeightedPointCloud,
+    tier: Tier,
+    room_id: str,
+    config: ManhattanConfig | None = None,
+    trajectory_xz: np.ndarray | None = None,
+) -> RoomModel:
+    """Fit a Manhattan room box to ``cloud``.
+
+    ``trajectory_xz`` is an optional (N,2) array of camera-position (x,z) samples. When given,
+    it is used purely as a *physical sanity floor*: a room can never be smaller than the area the
+    camera actually walked through (plus a standoff margin for not walking flush against a wall).
+    This matters most for the video tier, where sparse feature triangulation without depth can
+    under-cover distant/textureless walls -- see docs/11_known_limitations.md. It is a no-op
+    safety net (never shrinks a confident fit) so it is harmless to pass for any tier.
+    """
     cfg = config or ManhattanConfig()
     rng = np.random.default_rng(cfg.rng_seed)
     pts = cloud.points
@@ -172,6 +187,29 @@ def fit_room_box(cloud: WeightedPointCloud, tier: Tier, room_id: str, config: Ma
     u_lo, u_hi, n1 = _pick_bounding_pair(u_peaks, cfg.min_room_dim_m, all_xz_rot[:, 0].min(), all_xz_rot[:, 0].max())
     v_lo, v_hi, n2 = _pick_bounding_pair(v_peaks, cfg.min_room_dim_m, all_xz_rot[:, 1].min(), all_xz_rot[:, 1].max())
     notes.extend(n1 + n2)
+
+    if trajectory_xz is not None and len(trajectory_xz) > 0:
+        standoff_m = 0.3
+        traj_rot = _rotate(np.asarray(trajectory_xz, dtype=np.float64), theta0)
+        traj_u_lo, traj_u_hi = float(traj_rot[:, 0].min()) - standoff_m, float(traj_rot[:, 0].max()) + standoff_m
+        traj_v_lo, traj_v_hi = float(traj_rot[:, 1].min()) - standoff_m, float(traj_rot[:, 1].max()) + standoff_m
+        widened = False
+        wide_spread = cfg_default_spread() * 3
+        if traj_u_lo < u_lo.center:
+            u_lo, widened = Peak(center=traj_u_lo, support=0, spread=wide_spread), True
+        if traj_u_hi > u_hi.center:
+            u_hi, widened = Peak(center=traj_u_hi, support=0, spread=wide_spread), True
+        if traj_v_lo < v_lo.center:
+            v_lo, widened = Peak(center=traj_v_lo, support=0, spread=wide_spread), True
+        if traj_v_hi > v_hi.center:
+            v_hi, widened = Peak(center=traj_v_hi, support=0, spread=wide_spread), True
+        if widened:
+            notes.append(
+                "Footprint widened to encompass the camera trajectory (+0.3m standoff): wall-point "
+                "signal was below confidence threshold for the full walked area, so reported "
+                "width/depth are a physically-grounded lower bound with a widened uncertainty band "
+                "rather than a direct wall-surface measurement."
+            )
 
     width = u_hi.center - u_lo.center
     depth = v_hi.center - v_lo.center
