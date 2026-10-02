@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cozmoscan.local/schema/property_output.schema.json",
+  "title": "Cozmo Scan stitched multi-room property output",
+  "description": "Output of `cozmoscan stitch` (cozmoscan/pipeline.py:run_stitch), combining N single-room captures (see capture_output.schema.json) into one globally-placed property. See docs/02_data_model.md.",
+  "type": "object",
+  "required": ["schema_version", "rooms", "damage_regions", "scope_line_items", "render_path"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "rooms": { "type": "array", "items": { "$ref": "#/$defs/room_model" } },
+    "damage_regions": { "type": "array", "items": { "$ref": "#/$defs/damage_region" } },
+    "scope_line_items": { "type": "array", "items": { "$ref": "#/$defs/scope_line_item" } },
+    "render_path": { "type": "string" }
+  },
+  "$defs": {
+    "measurement": {
+      "type": "object",
+      "required": ["value", "ci", "method"],
+      "additionalProperties": false,
+      "properties": {
+        "value": { "type": "number" },
+        "ci": { "type": "number", "minimum": 0 },
+        "method": { "type": "string" }
+      }
+    },
+    "xy": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+    "opening": {
+      "type": "object",
+      "required": ["wall_index", "start_m", "width", "height", "kind", "sill_height_m"],
+      "additionalProperties": false,
+      "properties": {
+        "wall_index": { "type": "integer", "minimum": 0 },
+        "start_m": { "type": "number" },
+        "width": { "$ref": "#/$defs/measurement" },
+        "height": { "$ref": "#/$defs/measurement" },
+        "kind": { "type": "string", "enum": ["door", "window", "unknown"] },
+        "sill_height_m": { "type": "number" }
+      }
+    },
+    "wall": {
+      "type": "object",
+      "required": ["index", "p1", "p2", "length", "openings", "surface_id"],
+      "additionalProperties": false,
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "p1": { "$ref": "#/$defs/xy" },
+        "p2": { "$ref": "#/$defs/xy" },
+        "length": { "$ref": "#/$defs/measurement" },
+        "openings": { "type": "array", "items": { "$ref": "#/$defs/opening" } },
+        "surface_id": { "type": "string" }
+      }
+    },
+    "room_model": {
+      "type": "object",
+      "required": [
+        "room_id", "tier", "walls", "floor_polygon", "ceiling_height", "floor_area",
+        "transform_to_global", "point_count", "notes", "meta"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "room_id": { "type": "string" },
+        "tier": { "type": "string", "enum": ["photo", "video", "lidar"] },
+        "walls": { "type": "array", "items": { "$ref": "#/$defs/wall" } },
+        "floor_polygon": { "type": "array", "items": { "$ref": "#/$defs/xy" } },
+        "ceiling_height": { "oneOf": [{ "$ref": "#/$defs/measurement" }, { "type": "null" }] },
+        "floor_area": { "$ref": "#/$defs/measurement" },
+        "transform_to_global": {
+          "type": "array",
+          "items": { "type": "array", "items": { "type": "number" } },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "point_count": { "type": "integer", "minimum": 0 },
+        "notes": { "type": "array", "items": { "type": "string" } },
+        "meta": { "type": "object" }
+      }
+    },
+    "damage_region": {
+      "type": "object",
+      "required": [
+        "damage_class", "surface_id", "polygon_xy", "area_m2", "confidence",
+        "extent_m", "concealed_risk", "concealed_rule"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "damage_class": { "type": "string", "enum": ["moisture_stain", "structural_crack", "mold"] },
+        "surface_id": { "type": "string" },
+        "polygon_xy": { "type": "array", "items": { "$ref": "#/$defs/xy" } },
+        "area_m2": { "type": "number", "minimum": 0 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "extent_m": { "oneOf": [{ "type": "number" }, { "type": "null" }] },
+        "concealed_risk": { "oneOf": [{ "type": "string" }, { "type": "null" }] },
+        "concealed_rule": { "oneOf": [{ "type": "string" }, { "type": "null" }] }
+      }
+    },
+    "scope_line_item": {
+      "type": "object",
+      "required": ["surface_id", "damage_class", "description", "quantity", "unit", "rule"],
+      "additionalProperties": false,
+      "properties": {
+        "surface_id": { "type": "string" },
+        "damage_class": { "type": "string" },
+        "description": { "type": "string" },
+        "quantity": { "type": "number" },
+        "unit": { "type": "string" },
+        "rule": { "type": "string" }
+      }
+    }
+  }
+}

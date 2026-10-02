@@ -92,6 +92,10 @@ class Measurement:
     def as_dict(self) -> dict:
         return {"value": round(self.value, 4), "ci": round(self.ci, 4), "method": self.method}
 
+    @staticmethod
+    def from_dict(d: dict) -> "Measurement":
+        return Measurement(value=d["value"], ci=d["ci"], method=d["method"])
+
 
 @dataclass
 class Opening:
@@ -101,6 +105,27 @@ class Opening:
     height: Measurement
     kind: str  # "door" | "window" | "unknown"
     sill_height_m: float  # height of the gap's lower edge above the floor
+
+    def as_dict(self) -> dict:
+        return {
+            "wall_index": self.wall_index,
+            "start_m": round(self.start_m, 4),
+            "width": self.width.as_dict(),
+            "height": self.height.as_dict(),
+            "kind": self.kind,
+            "sill_height_m": round(self.sill_height_m, 4),
+        }
+
+    @staticmethod
+    def from_dict(d: dict) -> "Opening":
+        return Opening(
+            wall_index=d["wall_index"],
+            start_m=d["start_m"],
+            width=Measurement.from_dict(d["width"]),
+            height=Measurement.from_dict(d["height"]),
+            kind=d["kind"],
+            sill_height_m=d["sill_height_m"],
+        )
 
 
 @dataclass
@@ -121,6 +146,27 @@ class Wall:
         n = np.linalg.norm(d)
         return d / n if n > 1e-9 else d
 
+    def as_dict(self) -> dict:
+        return {
+            "index": self.index,
+            "p1": [round(float(v), 4) for v in self.p1],
+            "p2": [round(float(v), 4) for v in self.p2],
+            "length": self.length.as_dict(),
+            "openings": [o.as_dict() for o in self.openings],
+            "surface_id": self.surface_id,
+        }
+
+    @staticmethod
+    def from_dict(d: dict) -> "Wall":
+        return Wall(
+            index=d["index"],
+            p1=np.array(d["p1"], dtype=np.float64),
+            p2=np.array(d["p2"], dtype=np.float64),
+            length=Measurement.from_dict(d["length"]),
+            openings=[Opening.from_dict(o) for o in d["openings"]],
+            surface_id=d["surface_id"],
+        )
+
 
 @dataclass
 class RoomModel:
@@ -138,6 +184,36 @@ class RoomModel:
     def to_global_xy(self, pts_local_xy: np.ndarray) -> np.ndarray:
         homog = np.concatenate([pts_local_xy, np.ones((len(pts_local_xy), 1))], axis=1)
         return (homog @ self.transform_to_global.T)[:, :2]
+
+    def as_dict(self) -> dict:
+        return {
+            "room_id": self.room_id,
+            "tier": self.tier,
+            "walls": [w.as_dict() for w in self.walls],
+            "floor_polygon": [[round(float(x), 4), round(float(y), 4)] for x, y in self.floor_polygon],
+            "ceiling_height": self.ceiling_height.as_dict() if self.ceiling_height is not None else None,
+            "floor_area": self.floor_area.as_dict(),
+            "transform_to_global": [[round(float(v), 6) for v in row] for row in self.transform_to_global],
+            "point_count": self.point_count,
+            "notes": self.notes,
+            "meta": self.meta,
+        }
+
+    @staticmethod
+    def from_dict(d: dict) -> "RoomModel":
+        ch = d["ceiling_height"]
+        return RoomModel(
+            room_id=d["room_id"],
+            tier=d["tier"],
+            walls=[Wall.from_dict(w) for w in d["walls"]],
+            floor_polygon=np.array(d["floor_polygon"], dtype=np.float64),
+            ceiling_height=Measurement.from_dict(ch) if ch is not None else None,
+            floor_area=Measurement.from_dict(d["floor_area"]),
+            transform_to_global=np.array(d["transform_to_global"], dtype=np.float64),
+            point_count=d["point_count"],
+            notes=d.get("notes", []),
+            meta=d.get("meta", {}),
+        )
 
 
 @dataclass
@@ -167,6 +243,19 @@ class DamageRegion:
             "concealed_risk": self.concealed_risk,
             "concealed_rule": self.concealed_rule,
         }
+
+    @staticmethod
+    def from_dict(d: dict) -> "DamageRegion":
+        return DamageRegion(
+            damage_class=d["damage_class"],
+            surface_id=d["surface_id"],
+            polygon_xy=np.array(d["polygon_xy"], dtype=np.float64),
+            area_m2=d["area_m2"],
+            confidence=d["confidence"],
+            extent_m=d.get("extent_m"),
+            concealed_risk=d.get("concealed_risk"),
+            concealed_rule=d.get("concealed_rule"),
+        )
 
 
 @dataclass
