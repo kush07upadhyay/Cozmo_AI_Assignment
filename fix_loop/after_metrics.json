@@ -1,0 +1,154 @@
+{
+  "adaptive_opening_bins": true,
+  "per_room": {
+    "repeat_room_a": {
+      "n_openings_detected_total": 2,
+      "n_openings_ground_truth": 2,
+      "matched_results": [
+        {
+          "wall_index": 2,
+          "kind": "door",
+          "gt_width_m": 0.9,
+          "detected_width_m": 0.9122007613997098,
+          "width_error_m": 0.012200761399709825,
+          "within_tol": true,
+          "detected": true
+        },
+        {
+          "wall_index": 0,
+          "kind": "window",
+          "gt_width_m": 1.2,
+          "detected_width_m": 1.2235019705493988,
+          "width_error_m": 0.023501970549398843,
+          "within_tol": false,
+          "detected": true
+        }
+      ]
+    },
+    "repeat_room_b": {
+      "n_openings_detected_total": 2,
+      "n_openings_ground_truth": 2,
+      "matched_results": [
+        {
+          "wall_index": 2,
+          "kind": "door",
+          "gt_width_m": 0.9,
+          "detected_width_m": 0.9217906495317847,
+          "width_error_m": 0.021790649531784667,
+          "within_tol": false,
+          "detected": true
+        },
+        {
+          "wall_index": 0,
+          "kind": "window",
+          "gt_width_m": 1.2,
+          "detected_width_m": 1.2039528450086858,
+          "width_error_m": 0.003952845008685868,
+          "within_tol": true,
+          "detected": true
+        }
+      ]
+    },
+    "living_room": {
+      "n_openings_detected_total": 2,
+      "n_openings_ground_truth": 2,
+      "matched_results": [
+        {
+          "wall_index": 1,
+          "kind": "door",
+          "gt_width_m": 0.9,
+          "detected_width_m": 0.9658067984894894,
+          "width_error_m": 0.06580679848948934,
+          "within_tol": false,
+          "detected": true
+        },
+        {
+          "wall_index": 2,
+          "kind": "window",
+          "gt_width_m": 1.4,
+          "detected_width_m": 1.4161008940534536,
+          "width_error_m": 0.016100894053453718,
+          "within_tol": true,
+          "detected": true
+        }
+      ]
+    },
+    "hallway": {
+      "n_openings_detected_total": 2,
+      "n_openings_ground_truth": 2,
+      "matched_results": [
+        {
+          "wall_index": 0,
+          "kind": "door",
+          "gt_width_m": 0.9,
+          "detected_width_m": 0.9046161366955192,
+          "width_error_m": 0.004616136695519191,
+          "within_tol": true,
+          "detected": true
+        },
+        {
+          "wall_index": 1,
+          "kind": "door",
+          "gt_width_m": 0.9,
+          "detected_width_m": 0.9389242659060539,
+          "width_error_m": 0.03892426590605391,
+          "within_tol": false,
+          "detected": true
+        }
+      ]
+    },
+    "bedroom": {
+      "n_openings_detected_total": 2,
+      "n_openings_ground_truth": 2,
+      "matched_results": [
+        {
+          "wall_index": 0,
+          "kind": "door",
+          "gt_width_m": 0.9,
+          "detected_width_m": 0.9425793968606586,
+          "width_error_m": 0.04257939686065859,
+          "within_tol": false,
+          "detected": true
+        },
+        {
+          "wall_index": 3,
+          "kind": "window",
+          "gt_width_m": 1.1,
+          "detected_width_m": 1.1217947644742052,
+          "width_error_m": 0.02179476447420514,
+          "within_tol": false,
+          "detected": true
+        }
+      ]
+    },
+    "den": {
+      "n_openings_detected_total": 2,
+      "n_openings_ground_truth": 2,
+      "matched_results": [
+        {
+          "wall_index": 2,
+          "kind": "door",
+          "gt_width_m": 0.85,
+          "detected_width_m": 0.8415011383683138,
+          "width_error_m": 0.008498861631686228,
+          "within_tol": true,
+          "detected": true
+        },
+        {
+          "wall_index": 1,
+          "kind": "window",
+          "gt_width_m": 1.0,
+          "detected_width_m": 1.022977977726237,
+          "width_error_m": 0.02297797772623711,
+          "within_tol": false,
+          "detected": true
+        }
+      ]
+    }
+  },
+  "gate_opening_detection_rate": 1.0,
+  "gate_opening_within_2cm_rate": 0.4166666666666667,
+  "mean_width_error_m": 0.02356211019390687,
+  "max_width_error_m": 0.06580679848948934,
+  "total_false_positive_openings": 0
+}

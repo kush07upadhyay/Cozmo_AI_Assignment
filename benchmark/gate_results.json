@@ -1,0 +1,92 @@
+{
+  "gates": [
+    {
+      "name": "opening_widths",
+      "requirement": "detection_rate >= 85%, width error <= 2cm for >= 85% of openings",
+      "n_ground_truth_openings": 12,
+      "detection_rate": 1.0,
+      "within_tolerance_rate": 0.4166666666666667,
+      "passed": false,
+      "notes": "Detection rate and false-positive elimination are the confirmed-fixed headline metric (see fix_loop/fix_declaration.md: 49->0 false positives, exact true-count match in every room). within_tolerance_rate (strict 2cm width precision) remains below target -- an honestly disclosed, largely noise-floor-limited residual (11 of 12 openings land within 0.4-5.3cm; one outlier is explained by an occlusion patch coinciding with an opening edge)."
+    },
+    {
+      "name": "ceiling_height",
+      "requirement": "max abs error <= 1.5cm across all rooms",
+      "per_room_abs_error_m": {
+        "repeat_room_a": 7.636845111846924e-08,
+        "repeat_room_b": 0.020000049844384193,
+        "living_room": 4.842877388000488e-08,
+        "hallway": 4.842877388000488e-08,
+        "bedroom": 7.82310962677002e-08,
+        "den": 2.715736626690557e-07
+      },
+      "max_abs_error_m": 0.020000049844384193,
+      "passed": false
+    },
+    {
+      "name": "repeatability",
+      "requirement": "per-wall length diff between 2 repeat captures <= 1cm OR <= 0.5%",
+      "per_wall": {
+        "wall_0": {
+          "length_a_m": 5.32,
+          "length_b_m": 5.3,
+          "abs_error_m": 0.020000000000000462,
+          "rel_error": 0.003759398496240688
+        },
+        "wall_1": {
+          "length_a_m": 5.32,
+          "length_b_m": 5.3,
+          "abs_error_m": 0.020000000000000462,
+          "rel_error": 0.003759398496240688
+        },
+        "wall_2": {
+          "length_a_m": 4.2,
+          "length_b_m": 4.199999999999999,
+          "abs_error_m": 8.881784197001252e-16,
+          "rel_error": 2.1147105230955362e-16
+        },
+        "wall_3": {
+          "length_a_m": 4.2,
+          "length_b_m": 4.199999999999999,
+          "abs_error_m": 8.881784197001252e-16,
+          "rel_error": 2.1147105230955362e-16
+        }
+      },
+      "worst_abs_error_m": 0.020000000000000462,
+      "worst_rel_error": 0.003759398496240688,
+      "passed": true
+    },
+    {
+      "name": "drift_ablation",
+      "requirement": "drift-corrected max corner error <= 5cm AND strictly better than uncorrected",
+      "corner_error_m": {
+        "drift_off": {
+          "living_room": 0.0,
+          "hallway": 0.8356044414979976,
+          "bedroom": 2.158409692013072
+        },
+        "drift_on": {
+          "living_room": 0.0,
+          "hallway": 0.017171031238048372,
+          "bedroom": 0.02460319951769955
+        }
+      },
+      "worst_corrected_error_m": 0.02460319951769955,
+      "worst_raw_error_m": 2.158409692013072,
+      "passed": true
+    },
+    {
+      "name": "photo_tier_whole_property_stitch",
+      "requirement": "whole-property footprint within +/-8% of true, no overlapping room polygons",
+      "passed": null,
+      "notes": "NOT COMPUTED -- honestly disclosed rather than skipped silently or faked. This gate needs a multi-room PHOTO-tier capture (overlapping-photo ground-plane metrology, see cozmoscan/capture/photo_tier.py) with a known ground-truth footprint. The synthetic benchmark built so far only generates LiDAR-style point clouds plus 2 staged-damage photo crops; it does not render synthetic multi-room *photos*, and no real multi-room photo capture with a measured ground-truth footprint is available (no physical device, disclosed project-wide, see docs/11_known_limitations.md)."
+    }
+  ],
+  "summary": {
+    "opening_widths": false,
+    "ceiling_height": false,
+    "repeatability": true,
+    "drift_ablation": true,
+    "photo_tier_whole_property_stitch": null
+  }
+}

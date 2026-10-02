@@ -45,13 +45,29 @@ class ManhattanConfig:
     wall_band_low_m: float = 0.6
     wall_band_high_m: float = 1.8
     min_band_points: int = 600
-    opening_bin_m: float = 0.05
-    opening_coverage_threshold: float = 0.35
+    opening_bin_m: float = 0.05  # legacy-path grid size ONLY -- see adaptive_opening_bin_m below
+    opening_coverage_threshold: float = 0.35  # legacy-path threshold ONLY
     opening_min_width_m: float = 0.3
     corner_margin_m: float = 0.10
     door_sill_threshold_m: float = 0.15
     ci_k: float = 2.0  # calibrated against synthetic benchmark repeatability, see docs/07
     rng_seed: int = 7
+    # Fix-loop (fix_loop/fix_declaration.md): a FIXED opening_bin_m grid cell combined with a
+    # *mean coverage* threshold is a bad discriminator at realistic/sparse point density -- random
+    # sampling gaps on a perfectly solid wall push the mean coverage fraction down into almost the
+    # same range as a real opening. The fix keeps a fine grid but switches the per-column test to
+    # "longest CONTIGUOUS run of empty height-cells" (opening_min_run_frac, as a fraction of the
+    # valid height band): true openings are one topologically-connected missing region (long
+    # contiguous run by construction), while random sparsity misses are scattered and essentially
+    # never chain into one long run. Deliberately kept as SEPARATE fields from the legacy
+    # opening_bin_m/opening_coverage_threshold above (rather than overloading them) so the old
+    # pre-fix baseline stays exactly reproducible via adaptive_opening_bins=False, independent of
+    # any future tuning of the new path. Chosen via a benchmark sweep (fix_loop/_sweep.py,
+    # deleted after use): 0.03m / 0.40 gave 0 false positives and 12/12 true opening count across
+    # the synthetic benchmark's 6 rooms (see fix_loop/fix_declaration.md for the full writeup).
+    adaptive_opening_bins: bool = True
+    adaptive_opening_bin_m: float = 0.03
+    opening_min_run_frac: float = 0.4
 
 
 def _ransac_line(points2d: np.ndarray, iters: int, threshold: float, rng: np.random.Generator):
@@ -295,9 +311,123 @@ def _build_walls(
     return walls
 
 
+def _longest_false_run(mask: np.ndarray) -> int:
+    """Length of the longest contiguous run of False in a 1D boolean array."""
+    best = cur = 0
+    for v in mask:
+        if v:
+            cur = 0
+        else:
+            cur += 1
+            if cur > best:
+                best = cur
+    return best
+
+
 def _detect_openings(w: np.ndarray, h: np.ndarray, wall_len: float, room_height: float, wall_index: int, cfg: ManhattanConfig) -> list[Opening]:
     if wall_len < 2 * cfg.corner_margin_m or len(w) < 20:
         return []
+    if not cfg.adaptive_opening_bins:
+        return _detect_openings_fixed_grid(w, h, wall_len, room_height, wall_index, cfg)
+
+    # Root cause (fix_loop/fix_declaration.md): a fixed-resolution occupancy grid with a *mean*
+    # coverage threshold is a bad discriminator at realistic/sparse point density, because random
+    # sampling gaps on a perfectly solid wall push the mean coverage fraction down to almost
+    # exactly the same range as a real opening (P(empty cell) ~= opening_coverage_threshold at the
+    # benchmark's density -- i.e. the old threshold was, in effect, tuned to the noise floor).
+    #
+    # Fix: keep the same fine occupancy grid, but change *what's measured* per width-column: the
+    # LONGEST CONTIGUOUS run of empty height-cells, as a fraction of the valid height band. A true
+    # opening is one topologically-connected missing region (a long contiguous run, by
+    # construction); random sparsity misses are scattered independently and essentially never
+    # chain into one long run (e.g. at ~67% per-cell empty probability and ~48 height-cells, the
+    # *expected* longest empty run from pure chance is only ~7 cells / ~15% of the band, while a
+    # real door/window spans 45-80% of the band as one unbroken run) -- so a run-fraction
+    # threshold cleanly separates the two cases without needing to coarsen the grid at all,
+    # preserving width precision.
+    bin_m = cfg.adaptive_opening_bin_m
+    n_w_bins = max(1, int(np.ceil(wall_len / bin_m)))
+    n_h_bins = max(1, int(np.ceil(room_height / bin_m)))
+    occ = np.zeros((n_w_bins, n_h_bins), dtype=bool)
+    wi = np.clip((w / bin_m).astype(int), 0, n_w_bins - 1)
+    hi = np.clip((h / bin_m).astype(int), 0, n_h_bins - 1)
+    np.add.at(occ, (wi, hi), True)
+
+    valid_h_lo = max(0, int(0.05 / bin_m))
+    valid_h_hi = min(n_h_bins, int((room_height - 0.05) / bin_m))
+    band = occ[:, valid_h_lo:valid_h_hi]
+    band_len = max(valid_h_hi - valid_h_lo, 1)
+
+    run_frac = np.array([_longest_false_run(band[col]) for col in range(n_w_bins)], dtype=float) / band_len
+
+    margin_bins = max(1, int(cfg.corner_margin_m / bin_m))
+    is_open = run_frac >= cfg.opening_min_run_frac
+    is_open[:margin_bins] = False
+    is_open[-margin_bins:] = False
+
+    openings: list[Opening] = []
+    i = 0
+    while i < n_w_bins:
+        if not is_open[i]:
+            i += 1
+            continue
+        j = i
+        while j < n_w_bins and is_open[j]:
+            j += 1
+        width_m = (j - i) * bin_m
+        if width_m >= cfg.opening_min_width_m:
+            col_occ = occ[i:j, :]
+            missing_h = ~col_occ.any(axis=0)
+            if missing_h.any():
+                h_idx = np.nonzero(missing_h)[0]
+                gap_lo, gap_hi = h_idx.min() * bin_m, (h_idx.max() + 1) * bin_m
+            else:
+                gap_lo, gap_hi = 0.0, room_height
+            kind = "door" if gap_lo <= cfg.door_sill_threshold_m else "window"
+            # Edge refinement: the coarse grid only localizes the opening to within one bin_m.
+            # Sharpen start/width using the actual (unbinned) point positions, restricted to the
+            # gap's own height band -- this avoids contamination from a door's header or a
+            # window's sill/apron (which still have real wall points at *other* heights within
+            # the same w-range) while using the wall's genuinely fine point spacing (often <1cm
+            # along the width axis once summed over the gap's height band) for sub-bin precision.
+            start_m, width_m = _refine_opening_edges(w, h, i * bin_m, j * bin_m, bin_m, gap_lo, gap_hi, wall_len)
+            openings.append(
+                Opening(
+                    wall_index=wall_index,
+                    start_m=float(start_m),
+                    width=Measurement(value=float(width_m), ci=float(bin_m), method="opening_gap_run_width"),
+                    height=Measurement(value=float(gap_hi - gap_lo), ci=float(bin_m), method="opening_gap_run_height"),
+                    kind=kind,
+                    sill_height_m=float(gap_lo),
+                )
+            )
+        i = j
+    return openings
+
+
+def _refine_opening_edges(
+    w: np.ndarray, h: np.ndarray, coarse_start: float, coarse_end: float, bin_m: float, gap_lo: float, gap_hi: float, wall_len: float
+) -> tuple[float, float]:
+    """Refines a coarse-grid opening's [start, end) to the nearest actual point positions just
+    outside it, searched within the gap's own height band only (see caller for why) and within a
+    small search window around each coarse edge. Falls back to the coarse edge unchanged if no
+    points are found in the search window (e.g. a floor-to-ceiling opening at a wall corner)."""
+    band_mask = (h >= gap_lo) & (h <= gap_hi)
+    w_band = w[band_mask]
+    search_pad = 2 * bin_m
+    left_window = w_band[(w_band >= max(0.0, coarse_start - search_pad)) & (w_band < coarse_start)]
+    right_window = w_band[(w_band > coarse_end) & (w_band <= min(wall_len, coarse_end + search_pad))]
+    refined_start = float(left_window.max()) if len(left_window) else coarse_start
+    refined_end = float(right_window.min()) if len(right_window) else coarse_end
+    if refined_end <= refined_start:
+        return coarse_start, coarse_end - coarse_start
+    return refined_start, refined_end - refined_start
+
+
+def _detect_openings_fixed_grid(w: np.ndarray, h: np.ndarray, wall_len: float, room_height: float, wall_index: int, cfg: ManhattanConfig) -> list[Opening]:
+    """Pre-fix-loop behavior: single fixed-resolution 2D (width x height) occupancy grid. Kept
+    verbatim (not deleted) so fix_loop/run_fix_loop.py can regenerate the "before" comparison
+    forever without needing a git checkout of an older commit."""
     bin_m = cfg.opening_bin_m
     n_w_bins = max(1, int(np.ceil(wall_len / bin_m)))
     n_h_bins = max(1, int(np.ceil(room_height / bin_m)))
@@ -347,3 +477,4 @@ def _detect_openings(w: np.ndarray, h: np.ndarray, wall_len: float, room_height:
             )
         i = j
     return openings
+
