@@ -1,4 +1,4 @@
-# Cozmo Scan — Applied AI Engineer Case Study Submission
+# Cozmo Scan - Applied AI Engineer Case Study Submission
 
 A dimensioned floor-plan + damage-scope reconstruction pipeline from handheld iPhone capture
 (Photo / Video / LiDAR tiers), built end-to-end for
@@ -17,15 +17,15 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 
 # 2. Place the 3 provided sample-data zips in Sample_data_to_run_code/, then extract them
-#    (see Sample_data_to_run_code/README.md for the fast .NET extraction method — ~1 min)
+#    (see Sample_data_to_run_code/README.md for the fast .NET extraction method - ~1 min)
 
-# 3. Scan a room — one command, any tier
+# 3. Scan a room - one command, any tier
 .\.venv\Scripts\python.exe -m cozmoscan.cli scan `
     --capture-dir "Sample_data_to_run_code/single_room" --tier lidar `
     --room-id living_room --out out/living_room
 ```
 
-That's it — `out/living_room/result.json` (schema-validated) and `out/living_room/plan.png`
+That's it - `out/living_room/result.json` (schema-validated) and `out/living_room/plan.png`
 (rendered floor plan) now exist. Swap `--tier lidar` for `--tier video` or `--tier photo` to run
 the same command against the other two tiers; swap `--capture-dir` for any other Stray-Scanner-
 format capture folder, including a brand-new one captured live.
@@ -47,7 +47,7 @@ Run `python -m cozmoscan.cli scan --help` / `stitch --help` for the full flag re
 
 ## Reproduce every reported number
 
-Nothing in this submission's docs/report is hand-typed — every number comes from a committed,
+Nothing in this submission's docs/report is hand-typed - every number comes from a committed,
 runnable script against committed or regenerable inputs:
 
 ```powershell
@@ -79,6 +79,6 @@ loop, known limitations, security/privacy, technical report).
 ## Honesty, not polish, is the design goal
 
 Every gate result, every confidence interval, and every limitation in this submission is measured
-and disclosed, not rounded away — see [docs/11_known_limitations.md](docs/11_known_limitations.md)
+and disclosed, not rounded away - see [docs/11_known_limitations.md](docs/11_known_limitations.md)
 for the complete list (16 items) and [docs/06_compliance_matrix.md](docs/06_compliance_matrix.md)
 for exactly where every spec requirement is (or isn't yet) satisfied.

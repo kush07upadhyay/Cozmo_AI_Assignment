@@ -1,4 +1,4 @@
-# 00 — Overview
+# 00 - Overview
 
 Cozmo Scan is a 3-tier (Photo / Video / LiDAR) room-scanning pipeline: it turns a handheld
 phone capture into a dimensioned, damage-annotated, schema-validated floor plan, in one command
@@ -17,7 +17,7 @@ submission writeup if you only read one file.
 | Path | What it is |
 |---|---|
 | `cozmoscan/` | The pipeline package: capture ingestion, geometry reconstruction, damage detection, rendering, orchestration, CLI. |
-| `cozmoscan/pipeline.py` | `run_single_room()` / `run_stitch()` — the two entry points the CLI wraps. |
+| `cozmoscan/pipeline.py` | `run_single_room()` / `run_stitch()` - the two entry points the CLI wraps. |
 | `cozmoscan/cli.py` | `scan` / `stitch` subcommands (one command per capture). |
 | `schema/` | Published JSON Schemas (draft-07) for both pipeline outputs. |
 | `benchmark/` | Synthetic ground-truth generator, the 5 required gates, CI calibration, real-data cross-tier/timing report, head-to-head engine. |
@@ -50,18 +50,18 @@ submission writeup if you only read one file.
 
 | Gate | Result |
 |---|---|
-| Opening width accuracy (>=85% within 2cm) | **FAIL** — 100% detection, 41.7% within 2cm (disclosed residual) |
-| Ceiling height (<=1.5cm/room) | **FAIL** — 5/6 rooms <0.1mm error, 1 room (`repeat_room_b`) at 2.0cm |
+| Opening width accuracy (>=85% within 2cm) | **FAIL** - 100% detection, 41.7% within 2cm (disclosed residual) |
+| Ceiling height (<=1.5cm/room) | **FAIL** - 5/6 rooms <0.1mm error, 1 room (`repeat_room_b`) at 2.0cm |
 | Repeatability (<=1cm or 0.5%/wall) | **PASS** |
-| Drift ablation (corrected <=5cm, better than uncorrected) | **PASS** — 1.7-2.5cm corrected vs 84-216cm raw |
-| Photo-tier whole-property stitch (+-8%, no overlaps) | **UNKNOWN** — honestly not computed, see limitations |
+| Drift ablation (corrected <=5cm, better than uncorrected) | **PASS** - 1.7-2.5cm corrected vs 84-216cm raw |
+| Photo-tier whole-property stitch (+-8%, no overlaps) | **UNKNOWN** - honestly not computed, see limitations |
 
-Nothing here is hidden or rounded away — every FAIL/UNKNOWN is root-caused and disclosed, not
+Nothing here is hidden or rounded away - every FAIL/UNKNOWN is root-caused and disclosed, not
 smoothed over. This is deliberate: the case study explicitly scores honest disclosure of gaps
 over confident fabrication.
 
 Also measured (real captures, no synthetic ground truth available for these 2 tiers): video and
 photo tier wall-length accuracy vs. the LiDAR tier on the same real room, both currently **miss**
-their spec targets (video ±3%, photo ±8%) — see [08_benchmark_report.md](08_benchmark_report.md)
+their spec targets (video ±3%, photo ±8%) - see [08_benchmark_report.md](08_benchmark_report.md)
 §5 for the exact numbers. This directly drove widening the photo tier's disclosed confidence
 interval rather than leaving a falsely narrow one in place.

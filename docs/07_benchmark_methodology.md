@@ -1,16 +1,16 @@
-# 07 — Benchmark Methodology
+# 07 - Benchmark Methodology
 
 ## Why synthetic ground truth
 
 The case study provides no captures and no physical room ("We provide no captures... you build
 the benchmark set yourself, and its composition is specified so it cannot be flattered"). With
 no laser/tape measurements available for any real room in this sandbox, the only way to get
-**known, exact ground truth** to quantitatively score the 5 required gates is to generate it —
+**known, exact ground truth** to quantitatively score the 5 required gates is to generate it -
 this is spec-sanctioned, not a workaround. The 3 real Stray Scanner captures provided with the
 case study (`Sample_data_to_run_code/{single_room,single_scan_floor_only,single_scan_with_ceiling}`)
 have no ground truth either, so they are used for **qualitative, real-sensor-data integration
 testing** (does the pipeline run without crashing, are results plausible, does it degrade
-gracefully) — never for the quantitative gates, which would be unverifiable against them.
+gracefully) - never for the quantitative gates, which would be unverifiable against them.
 
 ## Generator design ([benchmark/synthetic_rooms.py](../benchmark/synthetic_rooms.py), [benchmark/generate_synthetic_benchmark.py](../benchmark/generate_synthetic_benchmark.py))
 
@@ -21,11 +21,11 @@ carved out as genuine gaps in the sampled points (not added afterward) so detect
 test, not a label stapled onto a perfect box.
 
 **Deliberately sparse + occluded, not dense/uniform**: density is 160 points/m² with 2
-furniture-occlusion patches (0.5m x 0.5m blank rectangles) per wall — chosen specifically to
+furniture-occlusion patches (0.5m x 0.5m blank rectangles) per wall - chosen specifically to
 *reproduce* the sparsity/occlusion visible in the real sample captures, rather than a convenient
 dense point cloud that would never stress-test the same failure modes. This choice is what
 allowed the opening over-detection bug to be caught and root-caused quantitatively at all (see
-[09_fix_loop.md](09_fix_loop.md)) — a dense synthetic cloud would never have reproduced it.
+[09_fix_loop.md](09_fix_loop.md)) - a dense synthetic cloud would never have reproduced it.
 
 **6 generated rooms**, covering every required benchmark-set composition item:
 
@@ -38,16 +38,16 @@ allowed the opening over-detection bug to be caught and root-caused quantitative
 
 ## Wall-index matching ([benchmark/evaluate.py](../benchmark/evaluate.py))
 
-`fit_room_box()` invents its own local frame from the RANSAC Manhattan-angle fit — for an
+`fit_room_box()` invents its own local frame from the RANSAC Manhattan-angle fit - for an
 axis-aligned synthetic room this is *some* 0/90/180/270° rotation/reflection of the generator's
 own x/z axes, but which one is not knowable in advance (confirmed empirically: `living_room`'s
 reconstructed frame came out rotated ~90° relative to generation). `match_wall_indices()`
-resolves this after the fact via nearest-wall-midpoint matching, purely a test-harness concern —
+resolves this after the fact via nearest-wall-midpoint matching, purely a test-harness concern -
 it has no bearing on whether a reconstruction is geometrically correct, only on which index a
 test script should compare it against.
 
 **This same frame ambiguity caused 2 real bugs** while building `benchmark/gates.py` (connector
-wall indices, and `RoomPlacement` coordinates) — both caught by the same sanity check: *the
+wall indices, and `RoomPlacement` coordinates) - both caught by the same sanity check: *the
 designated anchor room in a stitch ablation must always show exactly 0 corner error, by
 construction, regardless of drift on/off.* See `fix_loop`-adjacent lessons in session notes;
 both are fixed in the current `gates.py`.
@@ -62,7 +62,7 @@ both are fixed in the current `gates.py`.
 | `drift_ablation` | Report states the drift-correction approach; an ablation shows the stitched footprint with it on and off | `stitch_rooms(..., correct_drift=True/False)` on the living_room/hallway/bedroom property with injected drift; compares max corner error vs the true transform. |
 | `photo_tier_whole_property_stitch` | Per-room photo folders -> one stitched plan, correct adjacency, no overlaps, footprint within ±8% | **Honestly returns `passed=None`**: no synthetic multi-room photo-realistic data exists (the generator only produces point clouds) and no real multi-room photo capture with ground truth is available either. Not faked. |
 
-Run: `python -m benchmark.gates` — writes [benchmark/gate_results.json](../benchmark/gate_results.json),
+Run: `python -m benchmark.gates` - writes [benchmark/gate_results.json](../benchmark/gate_results.json),
 the full reproduction bundle for every number in [08_benchmark_report.md](08_benchmark_report.md).
 
 ## CI calibration ([benchmark/calibrate_ci.py](../benchmark/calibrate_ci.py))
@@ -73,20 +73,20 @@ the full reproduction bundle for every number in [08_benchmark_report.md](08_ben
 synthetic rooms (n=30: 24 wall lengths + 6 ceiling heights), compute
 `residual = |measured - true|` and `raw_spread = ci / current_ci_k` (recoverable exactly since
 `ci` is linear in `ci_k`). The ratio `residual / raw_spread` is "how many raw-spreads would the
-CI need to span to cover this sample's actual error" — the calibrated `ci_k` is the **max** of
+CI need to span to cover this sample's actual error" - the calibrated `ci_k` is the **max** of
 this ratio across all 30 samples (i.e. the smallest k that would have made every disclosed CI in
 this benchmark actually contain the truth), rounded up slightly (2.723 -> 2.8) for margin given
 the modest sample size. This is a deliberately simple, conservative method (not a percentile fit)
-— disclosed as such because n=30 is too small to responsibly support a tighter statistical
+- disclosed as such because n=30 is too small to responsibly support a tighter statistical
 coverage claim. Full per-sample evidence: [benchmark/ci_calibration.json](../benchmark/ci_calibration.json).
 
-The photo tier's `ci_frac` was **not** calibrated the same way initially — there is no synthetic
+The photo tier's `ci_frac` was **not** calibrated the same way initially - there is no synthetic
 photo-realistic repeat capture to calibrate against (the generator never produced rendered
 images/video, only point clouds). `benchmark/real_data_report.py` (below) later supplied real
 cross-tier evidence showing the photo tier's vertical (ceiling-height) and lateral
 (wall-width/depth/area) accuracy are very different in practice, so `ci_frac` was split into
 `ci_frac_ceiling` (15%, ~5x the observed ~3-9% real ceiling-height error) and `ci_frac_lateral`
-(55%, rounded up from the observed max 50.6% real wall-length error across 3 real rooms) — see
+(55%, rounded up from the observed max 50.6% real wall-length error across 3 real rooms) - see
 [cozmoscan/capture/photo_tier.py](../cozmoscan/capture/photo_tier.py) and
 [08_benchmark_report.md](08_benchmark_report.md) for the exact numbers.
 
@@ -100,5 +100,5 @@ real captures, measuring wall-clock load+reconstruct time, and comparing Video-t
 `ceiling_height`/`floor_area`/sorted-wall-length numbers against the LiDAR tier on the *same*
 physical room (LiDAR as a reference proxy, since no laser/tape ground truth exists for these
 rooms). This is explicitly **not** equivalent to a true ground-truthed gate and is never
-presented as one — see [08_benchmark_report.md](08_benchmark_report.md) for the actual numbers
+presented as one - see [08_benchmark_report.md](08_benchmark_report.md) for the actual numbers
 and this distinction stated again at point of use.

@@ -100,7 +100,7 @@ def render_property_plan(
     ax.set_xlim(all_pts[:, 0].min() - pad, all_pts[:, 0].max() + pad)
     ax.set_ylim(all_pts[:, 1].min() - pad, all_pts[:, 1].max() + pad)
     ax.set_aspect("equal")
-    ax.set_title(title or "Cozmo Scan — rendered plan")
+    ax.set_title(title or "Cozmo Scan - rendered plan")
     ax.set_xlabel("meters")
     ax.set_ylabel("meters")
     ax.grid(True, linestyle=":", alpha=0.3)
